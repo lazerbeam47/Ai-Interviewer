@@ -11,7 +11,7 @@ export function Form(){
 
         //add more validation if needed
         if(!githubUrl){
-            toast("Please fill in both fields");
+            toast("Please fill in the field");
             return;
         }
         setLoading(true);

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Interview" ADD COLUMN     "communication" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "knowledge" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "technicalSkills" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "thoughtProcess" INTEGER NOT NULL DEFAULT 0;

@@ -13,12 +13,15 @@ datasource db {
 }
 
 model Interview {
-  id             String            @id @default(uuid())
-  githubMetadata Json
-  status         InterviewStatus   @default(PENDING)
-  score          Int               @default(0)
-
-  conversation   Conversation[]
+  id                String          @id @default(uuid())
+  githubMetadata    Json
+  status            InterviewStatus @default(PENDING)
+  score             Int             @default(0)
+  knowledge         Int             @default(0)
+  communication     Int             @default(0)
+  technicalSkills   Int             @default(0)
+  thoughtProcess    Int             @default(0)
+  conversation      Conversation[]
 }
 
 model Conversation {
