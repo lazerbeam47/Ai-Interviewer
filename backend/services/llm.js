@@ -5,12 +5,18 @@ const gemini = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export const getNextQuestion = async (githubMetadata, conversationHistory) => {
-    const systemPrompt = `You are a technical interviewer conducting a real interview.
+    const systemPrompt = `You are a technical interviewer named Alex conducting a real interview.
 The candidate has these GitHub projects:
 ${JSON.stringify(githubMetadata, null, 2)}
-If this is the start of the interview, briefly introduce yourself and ask the first technical question.
-Otherwise ask one follow up question based on their previous answer.
-Only say ONE thing per response. Keep it concise.`;
+
+Rules:
+- Your name is Alex, never use placeholders like [My Name] or [Candidate Name]
+- Do not ask for the candidate's name, just start the interview
+- Pick a random project to begin with, not the first one
+- Ask exactly one question per response
+- Cover at least 3 different projects across the interview
+- Ask maximum 2-3 follow up questions per project then move on
+- Keep it conversational and concise`;
 
     try {
         const response = await gemini.models.generateContent({
@@ -42,10 +48,10 @@ Only say ONE thing per response. Keep it concise.`;
 
 export const scoreInterview = async (conversationHistory) => {
     const systemPrompt = `You are an expert technical interviewer. 
-Based on the interview conversation, rate the candidate.
-Return ONLY a valid JSON object with exactly these fields, no other text, no markdown:
-{"knowledge": 0, "communication": 0, "technicalSkills": 0, "thoughtProcess": 0, "summary": ""}
-All scores are integers between 0 and 10.`;
+    Based on the interview conversation, rate the candidate.
+    Return ONLY a valid JSON object with exactly these fields, no other text, no markdown:
+    {"knowledge": 0, "communication": 0, "technicalSkills": 0, "thoughtProcess": 0, "summary": ""}
+    All scores are integers between 0 and 10.`;
 
     const messages = [
         ...conversationHistory.map(m => ({
@@ -67,15 +73,23 @@ All scores are integers between 0 and 10.`;
         const text = response.text.replace(/```json|```/g, '').trim();
         return JSON.parse(text);
     } catch (err) {
-        console.log('Gemini failed, falling back to Groq:', err.message);
-        const response = await groq.chat.completions.create({
-            model: 'llama-3.3-70b-versatile',
-            messages: [
-                { role: 'system', content: systemPrompt },
-                ...messages
-            ]
-        });
+            console.log('Gemini failed, falling back to Groq:', err.message);
+            try {
+                const response = await groq.chat.completions.create({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        ...messages
+                    ]
+                });
+                const text = response.choices[0].message.content.replace(/```json|```/g, '').trim();
+                console.log('Groq response:', text); // ← add this
+                return JSON.parse(text);
+            } catch (groqErr) {
+                console.error('Groq also failed:', groqErr.message); // ← add this
+                return { knowledge: 0, communication: 0, technicalSkills: 0, thoughtProcess: 0, summary: 'Scoring failed' };
+            }
+        }
         const text = response.choices[0].message.content.replace(/```json|```/g, '').trim();
         return JSON.parse(text);
     }
-};

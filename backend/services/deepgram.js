@@ -53,7 +53,7 @@ export const createDeepgramConnection = async (socket,onFinalTranscript) => { //
             }));
             onFinalTranscript(accumulatedTranscript.trim());
             accumulatedTranscript = '';
-        }, 5000); // 3 seconds of silence = done speaking
+        }, 10000); // 3 seconds of silence = done speaking
     });
 
     connection.on('error', (err) => {

@@ -49,6 +49,7 @@ router.get('/interview/:id/result', async (req, res) => {
             communication: true,
             technicalSkills: true,
             thoughtProcess: true,
+            summary: true,
         }
     });
     return res.json(interview);

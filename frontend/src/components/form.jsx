@@ -19,7 +19,7 @@ export function Form(){
         try {
             const response = await axios.post("http://localhost:3000/api/pre-interview", { githubUrl })
             console.log(response.data);
-            navigate(`/interview/${response.data.id}`);
+            navigate(`/interview/${response.data.id}`,{replace:true});
         } catch (error) {
             console.error(error);
             toast("An error occurred while starting the interview");

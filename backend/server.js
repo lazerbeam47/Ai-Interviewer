@@ -42,6 +42,7 @@ wss.on('connection',(socket)=>{
                     });
                     console.log('githubMetadata:', interview.githubMetadata);
                     githubMetadata=interview.githubMetadata;
+                    githubMetadata = [...githubMetadata].sort(() => Math.random() - 0.5);
                     deepgramConnection = await createDeepgramConnection(socket,async(transcript)=>{
                         console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(deepgramConnection)));
                         // When a final transcript is received, add it to the conversation history and get the next question
@@ -71,6 +72,9 @@ wss.on('connection',(socket)=>{
                     socket.send(JSON.stringify({ type: EVENTS.TRANSCRIPT_INTERIM, payload: { text: 'Interim transcript...' } }));
                     break;
                 case EVENTS.END_INTERVIEW:
+                    console.log('conversation history length:', conversationHistory.length);
+                    console.log('conversation history:', JSON.stringify(conversationHistory, null, 2));
+
                     if (deepgramConnection) {
                         deepgramConnection.close();
                         deepgramConnection = null;
@@ -96,6 +100,7 @@ wss.on('connection',(socket)=>{
                             communication: scores.communication,
                             technicalSkills: scores.technicalSkills,
                             thoughtProcess: scores.thoughtProcess,
+                            summary: scores.summary,
                         }
                     });
 
