@@ -1,4 +1,5 @@
 import app from './app.js';
+import express from 'express';
 import dotenv from 'dotenv';
 import { createServer, get } from 'http';
 import { WebSocketServer } from 'ws';
@@ -7,7 +8,10 @@ import prisma from './db.js';
 dotenv.config();
 import { createDeepgramConnection } from './services/deepgram.js';
 import { getNextQuestion, scoreInterview } from './services/llm.js';
+import { apiLimiter } from './middleware/rate_limiter.js';
 
+const app1=express();
+app1.use('/api', apiLimiter); // Apply rate limiting to all /api routes
 
 
 const PORT = process.env.PORT || 3000;
